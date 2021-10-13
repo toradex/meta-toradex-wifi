@@ -11,6 +11,7 @@
 MACHINEOVERRIDES_prepend_colibri-imx6ull = "interface-diversity-sd-sd:"
 MACHINEOVERRIDES_prepend_colibri-imx8x = "interface-diversity-pcie-usb:"
 MACHINEOVERRIDES_prepend_verdin-imx8mm = "interface-diversity-sd-sd:"
+MACHINEOVERRIDES_prepend_verdin-imx8mp = "interface-diversity-sd-sd:"
 MACHINEOVERRIDES_prepend_apalis-imx8 = "interface-diversity-pcie-usb:"
 MACHINEOVERRIDES_prepend_apalis-imx8x = "interface-diversity-usb-usb:"
 

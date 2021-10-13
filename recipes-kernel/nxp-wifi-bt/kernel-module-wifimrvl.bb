@@ -44,7 +44,7 @@ do_install_append() {
 
 FILES_${PN} += "${base_libdir}/firmware/nxp"
 
-COMPATIBLE_MACHINE = "(colibri-imx6ull|colibri-imx8x|verdin-imx8mm|apalis-imx8|apalis-imx8x)"
+COMPATIBLE_MACHINE = "(colibri-imx6ull|colibri-imx8x|verdin-imx8mm|verdin-imx8mp|apalis-imx8|apalis-imx8x)"
 
 addtask nxp_driver_unpack before do_patch after do_unpack
 do_nxp_driver_unpack() {
