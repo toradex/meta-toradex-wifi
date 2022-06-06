@@ -20,6 +20,8 @@ do_install() {
 
 COMPATIBLE_MACHINE = "(colibri-imx6ull|colibri-imx8x|verdin-imx8mm|verdin-imx8mp|apalis-imx8|apalis-imx8x)"
 
+PCIE_WLAN_USB_FILE ?= "PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p173-16.26.10.p173-C4X16698_V4-GPL"
+
 addtask nxp_driver_unpack before do_patch after do_unpack
 do_nxp_driver_unpack() {
     :
@@ -55,7 +57,7 @@ do_nxp_driver_unpack_interface-diversity-usb-usb_mfg-mode() {
     install -m 0644 ${WORKDIR}/archive.usb-usb/MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164/bin/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
 }
 
-NXP_DRIVER_PACKAGE_interface-diversity-pcie-usb="PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p70-16.26.10.p70-C4X16672_V4-GPL.zip;name=pcie-usb-driver"
+NXP_DRIVER_PACKAGE_interface-diversity-pcie-usb="${PCIE_WLAN_USB_FILE}.zip;name=pcie-usb-driver"
 NXP_DRIVER_PACKAGE_interface-diversity-pcie-usb_mfg-mode="MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164.zip;name=pcie-usb-mfg-driver"
 SRC_URI_append_interface-diversity-pcie-usb = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_DRIVER_PACKAGE};subdir=archive.pcie-usb "
 SRC_URI[pcie-usb-driver.sha256sum] = "9c56bffc33e134d3f7502fdf12ee9b0c6b8f9a12c4ef73f6dd0c349384375b4f"
@@ -63,7 +65,7 @@ SRC_URI[pcie-usb-mfg-driver.sha256sum] = "599031b9040c3a501f656a30f85308b9a1929e
 do_nxp_driver_unpack_interface-diversity-pcie-usb() {
     tar -C ${S} \
         --strip-components=1 \
-        -xf ${WORKDIR}/archive.pcie-usb/PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p70-16.26.10.p70-C4X16672_V4-GPL.tar \
+        -xf ${WORKDIR}/archive.pcie-usb/${PCIE_WLAN_USB_FILE}.tar \
         FwImage/${FIRMWARE_BIN}
 }
 do_nxp_driver_unpack_interface-diversity-pcie-usb_mfg-mode() {

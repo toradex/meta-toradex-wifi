@@ -23,6 +23,10 @@ KERNEL_MODULE_PROBECONF_append_interface-diversity-pcie-usb = " ${KERNEL_MODULE_
 module_conf_pcie8xxx_interface-diversity-pcie-usb = "options pcie8xxx cal_data_cfg=nxp/cal_data.conf cfg80211_wext=12"
 module_conf_pcie8xxx_interface-diversity-pcie-usb_mfg-mode = "options pcie8xxx cal_data_cfg=none cfg80211_wext=0xf mfg_mode=1 fw_name=nxp/pcie8997_usb_combo.bin"
 
+PCIE_UAPSTA_FILENAME ?= "PCIE-UAPSTA-8997-U16-X86-W16.88.10.p173-C4X16698_V4"
+PCIE_UAPSTA_USB_BT ?= "PCIE-UAPSTA-USB-BT-8997-U16-X86-W16.88.10.p173-16.26.10.p173-C4X16698_V4-GPL"
+PCIE_WLAN_USB_FILE ?= "PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p173-16.26.10.p173-C4X16698_V4-GPL"
+
 SRC_URI = "\
     file://cal_data.conf \
     file://0001-makefile.patch \
@@ -83,19 +87,19 @@ do_nxp_driver_unpack_interface-diversity-usb-usb() {
     done
 }
 
-SRC_URI_append_interface-diversity-pcie-usb = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p70-16.26.10.p70-C4X16672_V4-GPL.zip;name=pcie-usb-driver;subdir=archive.pcie-usb "
+SRC_URI_append_interface-diversity-pcie-usb = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${PCIE_WLAN_USB_FILE}.zip;name=pcie-usb-driver;subdir=archive.pcie-usb "
 SRC_URI[pcie-usb-driver.sha256sum] = "9c56bffc33e134d3f7502fdf12ee9b0c6b8f9a12c4ef73f6dd0c349384375b4f"
 do_nxp_driver_unpack_interface-diversity-pcie-usb() {
     tar -C ${WORKDIR}/archive.pcie-usb/ \
-        -xf ${WORKDIR}/archive.pcie-usb/PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p70-16.26.10.p70-C4X16672_V4-GPL.tar \
-            PCIE-UAPSTA-8997-U16-X86-W16.88.10.p70-C4X16672_V4-app-src.tgz \
-            PCIE-UAPSTA-8997-U16-X86-W16.88.10.p70-C4X16672_V4-GPL-src.tgz \
-            PCIE-UAPSTA-8997-U16-X86-W16.88.10.p70-C4X16672_V4-mlan-src.tgz
-    for i in PCIE-UAPSTA-8997-U16-X86-W16.88.10.p70-C4X16672_V4-app-src.tgz \
-             PCIE-UAPSTA-8997-U16-X86-W16.88.10.p70-C4X16672_V4-GPL-src.tgz \
-             PCIE-UAPSTA-8997-U16-X86-W16.88.10.p70-C4X16672_V4-mlan-src.tgz; do
+        -xf ${WORKDIR}/archive.pcie-usb/${PCIE_WLAN_USB_FILE}.tar \
+            ${PCIE_UAPSTA_FILENAME}-app-src.tgz \
+            ${PCIE_UAPSTA_FILENAME}-GPL-src.tgz \
+            ${PCIE_UAPSTA_FILENAME}-mlan-src.tgz
+    for i in ${PCIE_UAPSTA_FILENAME}-app-src.tgz \
+             ${PCIE_UAPSTA_FILENAME}-GPL-src.tgz \
+             ${PCIE_UAPSTA_FILENAME}-mlan-src.tgz; do
         tar --strip-components=1 -C ${WORKDIR} \
             -xf ${WORKDIR}/archive.pcie-usb/$i \
-            PCIE-UAPSTA-USB-BT-8997-U16-X86-W16.88.10.p70-16.26.10.p70-C4X16672_V4-GPL/wlan_src
+            ${PCIE_UAPSTA_USB_BT}/wlan_src
     done
 }
