@@ -25,48 +25,54 @@ do_nxp_driver_unpack() {
     :
 }
 
-NXP_DRIVER_PACKAGE_interface-diversity-sd-sd="SD-WLAN-SD-BT-8997-U16-MMC-W16.68.10.p162-16.26.10.p162-C4X16693_V4-MGPL.zip;name=sd-sd-driver"
-NXP_DRIVER_PACKAGE_interface-diversity-sd-sd_mfg-mode="MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164.zip;name=sd-sd-mfg-driver"
+NXP_DRIVER_PACKAGE_interface-diversity-sd-sd="${NXP_PROPRIETARY_DRIVER_FILENAME};name=sd-sd-driver"
+NXP_DRIVER_PACKAGE_interface-diversity-sd-sd_mfg-mode="${NXP_PROPRIETARY_MFG_TOOL_FILENAME};name=sd-sd-mfg-driver"
 SRC_URI_append_interface-diversity-sd-sd = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_DRIVER_PACKAGE};subdir=archive.sd-sd "
-SRC_URI[sd-sd-driver.sha256sum] = "37ffc4ffe9030fe294001ab59b0c168cdaa994ba83e83e2b1369fe0846cd62f9"
-SRC_URI[sd-sd-mfg-driver.sha256sum] = "599031b9040c3a501f656a30f85308b9a1929ed5d1f7c40f14c370298f8ba8f9"
+SRC_URI[sd-sd-driver.sha256sum] = "${NXP_PROPRIETARY_DRIVER_SHA256}"
+SRC_URI[sd-sd-mfg-driver.sha256sum] = "${NXP_PROPRIETARY_MFG_TOOL_SHA256}"
 do_nxp_driver_unpack_interface-diversity-sd-sd() {
+    DRVNAME=$(basename ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/zip/tar/')
     tar -C ${S} \
         --strip-components=1 \
-        -xf ${WORKDIR}/archive.sd-sd/SD-WLAN-SD-BT-8997-U16-MMC-W16.68.10.p162-16.26.10.p162-C4X16693_V4-MGPL.tar \
+        -xf ${WORKDIR}/archive.sd-sd/$DRVNAME \
         FwImage/${FIRMWARE_BIN}
 }
 do_nxp_driver_unpack_interface-diversity-sd-sd_mfg-mode() {
-    install -m 0644 ${WORKDIR}/archive.sd-sd/MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164/bin/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
+    DIRNAME=$(basename ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/.zip//')
+    install -m 0644 ${WORKDIR}/archive.sd-sd/$DIRNAME/bin/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
 }
 
-NXP_DRIVER_PACKAGE_interface-diversity-usb-usb="USB-WLAN-BT-8997-U16-X86-W16.68.10.p136-16.26.10.p136-C4X16687_V4-MGPL.zip;name=usb-usb-driver"
-NXP_DRIVER_PACKAGE_interface-diversity-usb-usb_mfg-mode="MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164.zip;name=usb-usb-mfg-driver"
+NXP_DRIVER_PACKAGE_interface-diversity-usb-usb="${NXP_PROPRIETARY_DRIVER_FILENAME};name=usb-usb-driver"
+NXP_DRIVER_PACKAGE_interface-diversity-usb-usb_mfg-mode="${NXP_PROPRIETARY_MFG_TOOL_FILENAME};name=usb-usb-mfg-driver"
 SRC_URI_append_interface-diversity-usb-usb = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_DRIVER_PACKAGE};subdir=archive.usb-usb "
-SRC_URI[usb-usb-driver.sha256sum] = "07cf67576a1f6f14e63c5a0290b108a0b57863192c59b52c559cc24c38bd35a5"
-SRC_URI[usb-usb-mfg-driver.sha256sum] = "599031b9040c3a501f656a30f85308b9a1929ed5d1f7c40f14c370298f8ba8f9"
+SRC_URI[usb-usb-driver.sha256sum] = "${NXP_PROPRIETARY_DRIVER_SHA256}"
+SRC_URI[usb-usb-mfg-driver.sha256sum] = "${NXP_PROPRIETARY_MFG_TOOL_SHA256}"
 do_nxp_driver_unpack_interface-diversity-usb-usb() {
+    DRVNAME=$(basename ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/zip/tar/')
     tar -C ${S} \
         --strip-components=1 \
-        -xf ${WORKDIR}/archive.usb-usb/USB-WLAN-BT-8997-U16-X86-W16.68.10.p136-16.26.10.p136-C4X16687_V4-MGPL.tar \
+        -xf ${WORKDIR}/archive.usb-usb/$DRVNAME \
         FwImage/${FIRMWARE_BIN}
 }
 do_nxp_driver_unpack_interface-diversity-usb-usb_mfg-mode() {
-    install -m 0644 ${WORKDIR}/archive.usb-usb/MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164/bin/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
+    DIRNAME=$(basename ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/.zip//')
+    install -m 0644 ${WORKDIR}/archive.usb-usb/$DIRNAME/bin/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
 }
 
-NXP_DRIVER_PACKAGE_interface-diversity-pcie-usb="PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p70-16.26.10.p70-C4X16672_V4-GPL.zip;name=pcie-usb-driver"
-NXP_DRIVER_PACKAGE_interface-diversity-pcie-usb_mfg-mode="MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164.zip;name=pcie-usb-mfg-driver"
+NXP_DRIVER_PACKAGE_interface-diversity-pcie-usb="${NXP_PROPRIETARY_DRIVER_FILENAME};name=pcie-usb-driver"
+NXP_DRIVER_PACKAGE_interface-diversity-pcie-usb_mfg-mode="${NXP_PROPRIETARY_MFG_TOOL_FILENAME};name=pcie-usb-mfg-driver"
 SRC_URI_append_interface-diversity-pcie-usb = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_DRIVER_PACKAGE};subdir=archive.pcie-usb "
-SRC_URI[pcie-usb-driver.sha256sum] = "9c56bffc33e134d3f7502fdf12ee9b0c6b8f9a12c4ef73f6dd0c349384375b4f"
-SRC_URI[pcie-usb-mfg-driver.sha256sum] = "599031b9040c3a501f656a30f85308b9a1929ed5d1f7c40f14c370298f8ba8f9"
+SRC_URI[pcie-usb-driver.sha256sum] = "${NXP_PROPRIETARY_DRIVER_SHA256}"
+SRC_URI[pcie-usb-mfg-driver.sha256sum] = "${NXP_PROPRIETARY_MFG_TOOL_SHA256}"
 do_nxp_driver_unpack_interface-diversity-pcie-usb() {
+    DRVNAME=$(basename ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/zip/tar/')
     tar -C ${S} \
         --strip-components=1 \
-        -xf ${WORKDIR}/archive.pcie-usb/PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p70-16.26.10.p70-C4X16672_V4-GPL.tar \
+        -xf ${WORKDIR}/archive.pcie-usb/$DRVNAME \
         FwImage/${FIRMWARE_BIN}
 }
 do_nxp_driver_unpack_interface-diversity-pcie-usb_mfg-mode() {
-    install -m 0644 ${WORKDIR}/archive.pcie-usb/MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164/bin/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
+    DIRNAME=$(basename ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/.zip//')
+    install -m 0644 ${WORKDIR}/archive.pcie-usb/$DIRNAME/bin/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
 }
- 
+
