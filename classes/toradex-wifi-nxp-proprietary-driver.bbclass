@@ -11,9 +11,16 @@
 MACHINEOVERRIDES_prepend_colibri-imx6ull = "interface-diversity-sd-sd:"
 MACHINEOVERRIDES_prepend_colibri-imx8x = "interface-diversity-pcie-usb:"
 MACHINEOVERRIDES_prepend_verdin-imx8mm = "interface-diversity-sd-sd:"
-MACHINEOVERRIDES_prepend_verdin-imx8mp = "interface-diversity-sd-sd:"
+MACHINEOVERRIDES_prepend_verdin-imx8mp = "interface-diversity-sd-uart:"
 MACHINEOVERRIDES_prepend_apalis-imx8 = "interface-diversity-pcie-usb:"
 MACHINEOVERRIDES_prepend_apalis-imx8x = "interface-diversity-usb-usb:"
+
+MACHINE_EXTRA_RDEPENDS_append_interface-diversity-sd-uart = " \
+    kernel-module-mlan \
+    kernel-module-moal \
+    kernel-module-wifimrvl \
+    toradex-wifi-config \
+"
 
 MACHINE_EXTRA_RDEPENDS_append_interface-diversity-sd-sd = " \
     kernel-module-mlan \

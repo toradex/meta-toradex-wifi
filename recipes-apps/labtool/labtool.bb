@@ -2,10 +2,11 @@ SUMMARY = "Labtool application for AzureWave manufacturing mode tests."
 LICENSE = "CLOSED"
 
 SRC_URI = " \
-    ${NXP_PROPRIETARY_DRIVER_LOCATION}/MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164.zip;subdir=archive \
-    file://0001-Makefiles-and-setup-changes-for-Yocto-and-cross-comp.patch \
+    ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_PROPRIETARY_MFG_TOOL_FILENAME};subdir=archive \
+    file://0001-Adapt-makefile-for-yocto-build.patch \
+    file://0002-Bypass-problems-with-redefinition-of-min-and-max-std.patch \
+    file://0003-Remove-strip-from-the-build.patch \
 "
-
 ROOT_HOME="/home/root"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
@@ -20,13 +21,15 @@ python do_labtool_sanity_check() {
 
 addtask nxp_driver_unpack before do_patch after do_unpack
 do_nxp_driver_unpack() {
+    DIRNAME=$(echo ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/\.zip//')
+    DRVNAME=$(basename ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/zip/tar/')
     tar -C ${S} \
         --strip-components=2 \
-        -xf ${WORKDIR}/archive/MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164/bin/labtool_app_1.1.0.164-A1/labtool_1.0.0.164-src.tgz
+        -xf ${WORKDIR}/archive/${DIRNAME}/Labtool/labtool_1.1.0.188.0-src.tgz
 }
 
 do_compile() {
-    oe_runmake -f makefile.${HOST_ARCH} -k -C DutApiWiFiBt
+    oe_runmake -f MakeFile_W8997_FC18 -k -C DutApiWiFiBt
 }
 
 do_install() {

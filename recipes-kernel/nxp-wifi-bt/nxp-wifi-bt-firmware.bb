@@ -3,6 +3,8 @@ LICENSE = "CLOSED"
 
 FIRMWARE_BIN_interface-diversity-sd-sd = "sdsd8997_combo_v4.bin"
 FIRMWARE_BIN_interface-diversity-sd-sd_mfg-mode = "sdio8997_sdio_combo.bin"
+FIRMWARE_BIN_interface-diversity-sd-uart = "sdiouart8997_combo_v4.bin"
+FIRMWARE_BIN_interface-diversity-sd-uart_mfg-mode = "sdio8997_uart_combo.bin"
 FIRMWARE_BIN_interface-diversity-pcie-usb = "pcieusb8997_combo_v4.bin"
 FIRMWARE_BIN_interface-diversity-pcie-usb_mfg-mode = "pcie8997_usb_combo.bin"
 FIRMWARE_BIN_interface-diversity-usb-usb = "usbusb8997_combo_v4.bin"
@@ -25,21 +27,41 @@ do_nxp_driver_unpack() {
     :
 }
 
+NXP_DRIVER_PACKAGE_interface-diversity-sd-uart="${NXP_PROPRIETARY_DRIVER_FILENAME};name=sd-uart-driver"
+NXP_DRIVER_PACKAGE_interface-diversity-sd-uart_mfg-mode="${NXP_PROPRIETARY_MFG_TOOL_FILENAME};name=sd-uart-mfg-driver"
+SRC_URI_append_interface-diversity-sd-uart = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_DRIVER_PACKAGE};subdir=archive.sd-uart "
+SRC_URI[sd-uart-driver.sha256sum] = "${NXP_PROPRIETARY_DRIVER_SHA256}"
+SRC_URI[sd-uart-mfg-driver.sha256sum] = "${NXP_PROPRIETARY_MFG_TOOL_SHA256}"
+do_nxp_driver_unpack_interface-diversity-sd-uart() {
+    DIRNAME=$(echo ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/\.zip//')
+    DRVNAME=$(basename ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/zip/tar/')
+    tar -C ${S} \
+        --strip-components=1 \
+        -xf ${WORKDIR}/archive.sd-uart/$DIRNAME/$DRVNAME \
+        FwImage/${FIRMWARE_BIN}
+}
+do_nxp_driver_unpack_interface-diversity-sd-uart_mfg-mode() {
+    DIRNAME=$(basename ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/.zip//')
+    install -m 0644 ${WORKDIR}/archive.sd-uart/$DIRNAME/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
+}
+
+
 NXP_DRIVER_PACKAGE_interface-diversity-sd-sd="${NXP_PROPRIETARY_DRIVER_FILENAME};name=sd-sd-driver"
 NXP_DRIVER_PACKAGE_interface-diversity-sd-sd_mfg-mode="${NXP_PROPRIETARY_MFG_TOOL_FILENAME};name=sd-sd-mfg-driver"
 SRC_URI_append_interface-diversity-sd-sd = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_DRIVER_PACKAGE};subdir=archive.sd-sd "
 SRC_URI[sd-sd-driver.sha256sum] = "${NXP_PROPRIETARY_DRIVER_SHA256}"
 SRC_URI[sd-sd-mfg-driver.sha256sum] = "${NXP_PROPRIETARY_MFG_TOOL_SHA256}"
 do_nxp_driver_unpack_interface-diversity-sd-sd() {
+    DIRNAME=$(echo ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/\.zip//')
     DRVNAME=$(basename ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/zip/tar/')
     tar -C ${S} \
         --strip-components=1 \
-        -xf ${WORKDIR}/archive.sd-sd/$DRVNAME \
+        -xf ${WORKDIR}/archive.sd-sd/$DIRNAME/$DRVNAME \
         FwImage/${FIRMWARE_BIN}
 }
 do_nxp_driver_unpack_interface-diversity-sd-sd_mfg-mode() {
     DIRNAME=$(basename ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/.zip//')
-    install -m 0644 ${WORKDIR}/archive.sd-sd/$DIRNAME/bin/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
+    install -m 0644 ${WORKDIR}/archive.sd-sd/$DIRNAME/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
 }
 
 NXP_DRIVER_PACKAGE_interface-diversity-usb-usb="${NXP_PROPRIETARY_DRIVER_FILENAME};name=usb-usb-driver"
@@ -56,7 +78,7 @@ do_nxp_driver_unpack_interface-diversity-usb-usb() {
 }
 do_nxp_driver_unpack_interface-diversity-usb-usb_mfg-mode() {
     DIRNAME=$(basename ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/.zip//')
-    install -m 0644 ${WORKDIR}/archive.usb-usb/$DIRNAME/bin/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
+    install -m 0644 ${WORKDIR}/archive.usb-usb/$DIRNAME/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
 }
 
 NXP_DRIVER_PACKAGE_interface-diversity-pcie-usb="${NXP_PROPRIETARY_DRIVER_FILENAME};name=pcie-usb-driver"
@@ -73,6 +95,6 @@ do_nxp_driver_unpack_interface-diversity-pcie-usb() {
 }
 do_nxp_driver_unpack_interface-diversity-pcie-usb_mfg-mode() {
     DIRNAME=$(basename ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/.zip//')
-    install -m 0644 ${WORKDIR}/archive.pcie-usb/$DIRNAME/bin/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
+    install -m 0644 ${WORKDIR}/archive.pcie-usb/$DIRNAME/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
 }
 

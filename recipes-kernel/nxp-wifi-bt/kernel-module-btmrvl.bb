@@ -37,7 +37,8 @@ SRC_URI[sd-sd-driver.sha256sum] = "${NXP_PROPRIETARY_DRIVER_SHA256}"
 
 do_nxp_driver_unpack_interface-diversity-sd-sd() {
     DRVNAME=$(basename ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/zip/tar/')
-    tar -C ${WORKDIR}/archive.sd-sd/ -xf ${WORKDIR}/archive.sd-sd/$DRVNAME
+    DIRNAME=$(echo ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/\.zip//')
+    tar -C ${WORKDIR}/archive.sd-sd/ -xf ${WORKDIR}/archive.sd-sd/$DIRNAME/$DRVNAME
     for i in `ls ${WORKDIR}/archive.sd-sd/*-src.tgz`; do
         tar --strip-components=1 -C ${WORKDIR} \
             -xf $i
