@@ -1,9 +1,12 @@
-This README file contains information on the contents of the meta-toradex-wifi layer. This layer adds support for the
-NXP proprietary wifi drivers that can be enabled instead of the mainline mwifiex drivers. It adds a blacklisting
-mechanism for the modules making it simple to choose what module to use based on the modprobe configuration files.
+This layer adds support for the NXP proprietary wifi drivers that can be enabled instead of the mainline mwifiex drivers. 
+It adds a blacklisting mechanism for the modules making it simple to choose what module to 
+use based on the modprobe configuration files.
 
 This layer also includes support for enabling the manufacturing mode for the NXP wifi drivers, that can be used
-for lab testing.
+for lab testing and it depends on proprietary files that come from NXP.
+
+Toradex makes this files available to customers under NDA, please contact your TSE or FAE for information on how to get access
+to the necessary files.
 
 Please see the corresponding sections below for details.
 
@@ -11,7 +14,7 @@ Supported SOMS:
 - colibri-imx6ull: interface-diversity-sd-sd
 - colibri-imx8x:   interface-diversity-pcie-usb
 - verdin-imx8mm:   interface-diversity-sd-sd
-- verdin-imx8mp:   interface-diversity-sd-sd
+- verdin-imx8mp:   interface-diversity-sd-uart
 - apalis-imx8:     interface-diversity-pcie-usb
 
 # How to install
@@ -35,33 +38,26 @@ EOF
 $ repo sync meta-toradex-wifi
 ```
 
-Enable the layer in your build:
-```
-$ cd ${BUILD_DIR}
-$ echo 'BBLAYERS += " ${TOPDIR}/../layers/meta-toradex-wifi"' >> conf/bblayers.conf
-$ echo 'INHERIT += "toradex-wifi-nxp-proprietary-driver"' >> conf/auto.conf
-```
-
-## Download NXP Archives
-
-This layer does not contain the actual sources and firmware binaries from NXP. These files are available from your support account at https://www.nxp.com/mynxp/library.  Once you are logged in, you can view your library by product and filter for “88w8997”.  Then you need to download the files in the following table:
-
-| Machine | Normal Archive | Manufacturing Mode Archive |
-| :--     | :--            | :--                        |
-| colibri-imx6ull | SD-WLAN-SD-BT-8997-U16-MMC-W16.68.10.p162-16.26.10.p162-C4X16693_V4-MGPL.zip | MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164.zip |
-| verdin-imx8mm   | SD-WLAN-SD-BT-8997-U16-MMC-W16.68.10.p162-16.26.10.p162-C4X16693_V4-MGPL.zip | MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164.zip | 
-| apalis-imx8     | PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p70-16.26.10.p70-C4X16672_V4-GPL.zip | MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164.zip |
-| colibri-imx8x   | PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p70-16.26.10.p70-C4X16672_V4-GPL.zip | MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164.zip |
-
-Download these files into a known location on your build system and then add the following to your `local.conf` file to tell the build where to find them.
+## Decompress the archive with the proprietary drivers downloaded from Toradex:
 
 ```
-NXP_PROPRIETARY_DRIVER_LOCATION = "file:///home/user/wifi-archive"
+# source your yocto environment file
+$ . export
+$ cd $BBPATH
+$ tar xf proprietary_drivers_nxp_wifi.tar
 ```
 
-Note the three `/` characters is required in this URI specification.
+After this, you should have a `wifi-archive` directory on the topdir of your yocto build.
 
-As NXP updates these drivers from time to time, the versions of the files that are available at any point in time can be different from the ones presented on the table. Download the proper files according to the necessary interface diversity option of your Toradex Module.
+## Enable the layer in your build:
+
+```
+$ cd $BBPATH/layers/meta-toradex-wifi
+$ ./install_layer.sh
+```
+
+The `install_layer.sh` script will setup all the necessary variables to enable the layer and to build and enable the
+proprietary drivers by default. Consult this script if you want to know the details of this operation.
 
 ## Configure
 There are a few configuration options available with this layer. These options are specified in your local.conf or auto.conf file using the MACHINEOVERRIDES variable.
@@ -76,25 +72,6 @@ To enable manufacturing mode, use the above setting to default to the mlan drive
 
 ```
 MACHINEOVERRIDES =. "mfg-mode:"
-```
-
-Configure the filenames of the downloaded NXP sources with these variables on your `local.conf` file:
-
-```
-NXP_PROPRIETARY_DRIVER_FILENAME_interface-diversity-pcie-usb = "PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p173-16.26.10.p173-C4X16698_V4-MGPL.zip"
-NXP_PROPRIETARY_DRIVER_SHA256_interface-diversity-pcie-usb="24edfcc985c9c7710c7a8f96de8e8b5ed3037c76126c48a49486f4e517ab5335"
-NXP_PROPRIETARY_DRIVER_FILENAME_interface-diversity-sd-sd= "SD-WLAN-SD-BT-8997-U16-MMC-W16.68.10.p162-16.26.10.p162-C4X16693_V4-MGPL.zip"
-NXP_PROPRIETARY_DRIVER_SHA256_interface-diversity-sd-sd="37ffc4ffe9030fe294001ab59b0c168cdaa994ba83e83e2b1369fe0846cd62f9"
-NXP_PROPRIETARY_MFG_TOOL_FILENAME="MFG-W8997-MF-LABTOOL-U14-1.1.0.164-A1-16.80.205.p164.zip"
-NXP_PROPRIETARY_MFG_TOOL_SHA256="599031b9040c3a501f656a30f85308b9a1929ed5d1f7c40f14c370298f8ba8f9"
-```
-
-You only need the variables configuring the interface diversity that is needed by your toradex module. You also need to fill in the sha256 hash for
-the file you downloaded. You can get in on linux by using:
-
-```
-$ sha256sum PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p173-16.26.10.p173-C4X16698_V4-MGPL.zip
-24edfcc985c9c7710c7a8f96de8e8b5ed3037c76126c48a49486f4e517ab5335  PCIE-WLAN-USB-BT-8997-U16-X86-W16.88.10.p173-16.26.10.p173-C4X16698_V4-MGPL.zip
 ```
 
 ## Build
