@@ -7,8 +7,6 @@ FIRMWARE_BIN_interface-diversity-sd-uart = "sdiouart8997_combo_v4.bin"
 FIRMWARE_BIN_interface-diversity-sd-uart_mfg-mode = "sdio8997_uart_combo.bin"
 FIRMWARE_BIN_interface-diversity-pcie-usb = "pcieusb8997_combo_v4.bin"
 FIRMWARE_BIN_interface-diversity-pcie-usb_mfg-mode = "pcie8997_usb_combo.bin"
-FIRMWARE_BIN_interface-diversity-usb-usb = "usbusb8997_combo_v4.bin"
-FIRMWARE_BIN_interface-diversity-usb-usb_mfg-mode = "usb8997_usb_combo.bin"
 
 FILES_${PN} = "${base_libdir}/firmware/nxp"
 
@@ -20,7 +18,7 @@ do_install() {
     install -m 0644 ${S}/${FIRMWARE_BIN} ${D}${base_libdir}/firmware/nxp
 }
 
-COMPATIBLE_MACHINE = "(colibri-imx6ull|colibri-imx8x|verdin-imx8mm|verdin-imx8mp|apalis-imx8|apalis-imx8x)"
+COMPATIBLE_MACHINE = "(colibri-imx6ull|colibri-imx8x|verdin-imx8mm|verdin-imx8mp|apalis-imx8)"
 
 addtask nxp_driver_unpack before do_patch after do_unpack
 do_nxp_driver_unpack() {
@@ -62,23 +60,6 @@ do_nxp_driver_unpack_interface-diversity-sd-sd() {
 do_nxp_driver_unpack_interface-diversity-sd-sd_mfg-mode() {
     DIRNAME=$(basename ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/.zip//')
     install -m 0644 ${WORKDIR}/archive.sd-sd/$DIRNAME/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
-}
-
-NXP_DRIVER_PACKAGE_interface-diversity-usb-usb="${NXP_PROPRIETARY_DRIVER_FILENAME};name=usb-usb-driver"
-NXP_DRIVER_PACKAGE_interface-diversity-usb-usb_mfg-mode="${NXP_PROPRIETARY_MFG_TOOL_FILENAME};name=usb-usb-mfg-driver"
-SRC_URI_append_interface-diversity-usb-usb = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_DRIVER_PACKAGE};subdir=archive.usb-usb "
-SRC_URI[usb-usb-driver.sha256sum] = "${NXP_PROPRIETARY_DRIVER_SHA256}"
-SRC_URI[usb-usb-mfg-driver.sha256sum] = "${NXP_PROPRIETARY_MFG_TOOL_SHA256}"
-do_nxp_driver_unpack_interface-diversity-usb-usb() {
-    DRVNAME=$(basename ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/zip/tar/')
-    tar -C ${S} \
-        --strip-components=1 \
-        -xf ${WORKDIR}/archive.usb-usb/$DRVNAME \
-        FwImage/${FIRMWARE_BIN}
-}
-do_nxp_driver_unpack_interface-diversity-usb-usb_mfg-mode() {
-    DIRNAME=$(basename ${NXP_PROPRIETARY_MFG_TOOL_FILENAME} | sed 's/.zip//')
-    install -m 0644 ${WORKDIR}/archive.usb-usb/$DIRNAME/FwImage/${FIRMWARE_BIN} ${S}/${FIRMWARE_BIN}
 }
 
 NXP_DRIVER_PACKAGE_interface-diversity-pcie-usb="${NXP_PROPRIETARY_DRIVER_FILENAME};name=pcie-usb-driver"

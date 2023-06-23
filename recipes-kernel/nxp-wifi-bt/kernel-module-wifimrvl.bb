@@ -5,12 +5,10 @@ inherit module
 
 RPROVIDES_${PN}_append_interface-diversity-sd-uart= " kernel-module-moal kernel-module-mlan "
 RPROVIDES_${PN}_append_interface-diversity-sd-sd = " kernel-module-sd8xxx kernel-module-mlan "
-RPROVIDES_${PN}_append_interface-diversity-usb-usb = " kernel-module-usb8xxx kernel-module-mlan "
 RPROVIDES_${PN}_append_interface-diversity-pcie-usb = " kernel-module-pcie8xxx kernel-module-mlan "
 
 KERNEL_MODULE_WIFI_INTERFACE_interface-diversity-sd-uart = "moal"
 KERNEL_MODULE_WIFI_INTERFACE_interface-diversity-sd-sd = "sd8xxx"
-KERNEL_MODULE_WIFI_INTERFACE_interface-diversity-usb-usb = "usb8xxx"
 KERNEL_MODULE_WIFI_INTERFACE_interface-diversity-pcie-usb = "pcie8xxx"
 
 KERNEL_MODULE_PROBECONF_append_interface-diversity-sd-uart= " ${KERNEL_MODULE_WIFI_INTERFACE} "
@@ -20,10 +18,6 @@ module_conf_moal_interface-diversity-sd-uart_mfg-mode = "options moal cal_data_c
 KERNEL_MODULE_PROBECONF_append_interface-diversity-sd-sd = " ${KERNEL_MODULE_WIFI_INTERFACE} "
 module_conf_sd8xxx_interface-diversity-sd-sd = "options sd8xxx cal_data_cfg=nxp/cal_data.conf cfg80211_wext=12"
 module_conf_sd8xxx_interface-diversity-sd-sd_mfg-mode = "options sd8xxx cal_data_cfg=none cfg80211_wext=0xf mfg_mode=1 fw_name=nxp/sdio8997_sdio_combo.bin"
-
-KERNEL_MODULE_PROBECONF_append_interface-diversity-usb-usb = " ${KERNEL_MODULE_WIFI_INTERFACE} "
-module_conf_usb8xxx_interface-diversity-usb-usb = "options usb8xxx cal_data_cfg=nxp/cal_data.conf cfg80211_wext=12"
-module_conf_usb8xxx_interface-diversity-usb-usb_mfg-mode = "options usb8xxx cal_data_cfg=none cfg80211_wext=0xf mfg_mode=1 fw_name=nxp/usb8997_usb_combo.bin"
 
 KERNEL_MODULE_PROBECONF_append_interface-diversity-pcie-usb = " ${KERNEL_MODULE_WIFI_INTERFACE} "
 module_conf_pcie8xxx_interface-diversity-pcie-usb = "options pcie8xxx cal_data_cfg=nxp/cal_data.conf cfg80211_wext=12"
@@ -40,10 +34,6 @@ SRC_URI_interface-diversity-sd-uart = "\
     file://0002-add-install-target.patch\
 "
 
-SRC_URI_append_interface-diversity-usb-usb = " \
-    file://0001-Fix-kernel-version-logic-related-to-pm_usage_cnt.patch \
-"
-
 S = "${WORKDIR}/wlan_src"
 
 DEPENDS += "bc-native"
@@ -56,7 +46,7 @@ do_install_append() {
 
 FILES_${PN} += "${base_libdir}/firmware/nxp"
 
-COMPATIBLE_MACHINE = "(colibri-imx6ull|colibri-imx8x|verdin-imx8mm|verdin-imx8mp|apalis-imx8|apalis-imx8x)"
+COMPATIBLE_MACHINE = "(colibri-imx6ull|colibri-imx8x|verdin-imx8mm|verdin-imx8mp|apalis-imx8)"
 
 addtask nxp_driver_unpack before do_patch after do_unpack
 do_nxp_driver_unpack() {
@@ -82,17 +72,6 @@ do_nxp_driver_unpack_interface-diversity-sd-sd() {
     DRVNAME=$(basename ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/zip/tar/')
     tar -C ${WORKDIR}/archive.sd-sd/ -xf ${WORKDIR}/archive.sd-sd/$DIRNAME/$DRVNAME
     for i in `ls ${WORKDIR}/archive.sd-sd/*-src.tgz`; do
-        tar --strip-components=1 -C ${WORKDIR} \
-            -xf $i
-    done
-}
-
-SRC_URI_append_interface-diversity-usb-usb = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_PROPRIETARY_DRIVER_FILENAME};name=usb-usb-driver;subdir=archive.usb-usb "
-SRC_URI[usb-usb-driver.sha256sum] = "${NXP_PROPRIETARY_DRIVER_SHA1}"
-do_nxp_driver_unpack_interface-diversity-usb-usb() {
-    DRVNAME=$(basename ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/zip/tar/')
-    tar -C ${WORKDIR}/archive.usb-usb/ -xf ${WORKDIR}/archive.usb-usb/$DRVNAME
-    for i in `ls ${WORKDIR}/archive.usb-usb/*-src.tgz`; do
         tar --strip-components=1 -C ${WORKDIR} \
             -xf $i
     done
