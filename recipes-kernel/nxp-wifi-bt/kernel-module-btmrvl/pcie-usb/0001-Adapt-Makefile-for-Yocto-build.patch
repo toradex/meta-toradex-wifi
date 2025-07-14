@@ -1,0 +1,33 @@
+From a364b5dca2eb28f47e8a3bd04486ab0afd1be032 Mon Sep 17 00:00:00 2001
+From: Rafael Beims <rafael.beims@toradex.com>
+Date: Sat, 28 Dec 2024 08:06:19 -0300
+Subject: [PATCH] Adapt Makefile for Yocto build
+
+---
+ Makefile | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 394e5aa4d2c1..fd1dea00f552 100755
+--- a/Makefile
++++ b/Makefile
+@@ -61,7 +61,7 @@ endif
+ 
+ 
+ KERNELVERSION_X86 := 	$(shell uname -r)
+-KERNELDIR?=/lib/modules/$(KERNELVERSION_X86)/build
++KERNELDIR?=$(KERNEL_SRC)
+ 
+ 
+ EXTRA_CFLAGS += -I$(M)/bt
+@@ -178,4 +178,7 @@ distclean:
+ 	-rm -rf .tmp_versions
+ #	$(MAKE) -C app/fm_app $@
+ #	$(MAKE) -C app/btapp $@
++
++modules_install:
++	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules_install
+ # End of file;
+-- 
+2.39.5
+

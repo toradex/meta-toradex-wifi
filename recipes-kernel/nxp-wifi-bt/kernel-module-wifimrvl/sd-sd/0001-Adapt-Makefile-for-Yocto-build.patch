@@ -1,0 +1,32 @@
+From 32884532802e9635cc0b23cd2932510b3778a41b Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Mon, 30 Dec 2024 15:59:07 -0300
+Subject: [PATCH] Adapt Makefile for Yocto build
+
+---
+ Makefile | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index e343fe1..88ff2a8 100755
+--- a/Makefile
++++ b/Makefile
+@@ -26,6 +26,8 @@ LD ?=		$(CROSS_COMPILE)ld
+ BACKUP=		/root/backup
+ YMD=		`date +%Y%m%d%H%M`
+ 
++KERNELDIR=$(KERNEL_SRC)
++
+ #############################################################################
+ # Configuration Options
+ #############################################################################
+@@ -613,4 +615,6 @@ endif
+ 	$(MAKE) -C mapp/mlanevent $@
+ endif
+ 
++modules_install:
++	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules_install
+ # End of file
+-- 
+2.25.1
+

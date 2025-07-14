@@ -1,0 +1,33 @@
+From d0dae0ccb6058f840980416fb1256c9e0b17dbf9 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Mon, 30 Dec 2024 16:09:02 -0300
+Subject: [PATCH] Adapt Makefile for Yocto build
+
+---
+ Makefile | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index efd2321..d5ec517 100755
+--- a/Makefile
++++ b/Makefile
+@@ -8,6 +8,8 @@ LD ?=		$(CROSS_COMPILE)ld
+ BACKUP=		/root/backup
+ YMD=		`date +%Y%m%d%H%M`
+ 
++KERNELDIR=$(KERNEL_SRC)
++
+ #############################################################################
+ # Configuration Options
+ #############################################################################
+@@ -184,4 +186,7 @@ distclean:
+ 	-rm -rf .tmp_versions
+ #	$(MAKE) -C app/fm_app $@
+ #	$(MAKE) -C app/btapp $@
++
++modules_install:
++	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules_install
+ # End of file;
+-- 
+2.25.1
+

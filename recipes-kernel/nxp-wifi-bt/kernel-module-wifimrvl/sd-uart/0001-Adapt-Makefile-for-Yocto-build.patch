@@ -1,0 +1,32 @@
+From 411db4ad5f2714f8be580d4526aebc92bca948c5 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Mon, 30 Dec 2024 12:45:43 -0300
+Subject: [PATCH] Adapt Makefile for Yocto build
+
+---
+ Makefile | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index 1741bdc..f3f5f37 100755
+--- a/Makefile
++++ b/Makefile
+@@ -34,6 +34,8 @@ LD ?=		$(CROSS_COMPILE)ld
+ BACKUP=		/root/backup
+ YMD=		`date +%Y%m%d%H%M`
+ 
++KERNELDIR=$(KERNEL_SRC)
++
+ #############################################################################
+ # Configuration Options
+ #############################################################################
+@@ -766,3 +768,6 @@ install: default
+ 	cp -f moal.$(MODEXT) $(INSTALLDIR)/moal$(DBG).$(MODEXT)
+ 	echo $(INSTALLDIR)
+ 	echo "MX Driver Installed"
++
++modules_install:
++	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules_install
+-- 
+2.25.1
+

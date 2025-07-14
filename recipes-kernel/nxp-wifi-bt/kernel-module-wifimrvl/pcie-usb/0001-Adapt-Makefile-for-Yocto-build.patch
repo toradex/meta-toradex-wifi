@@ -1,0 +1,32 @@
+From 321bf1d3cfa883e606a69e34df942e4683f0320b Mon Sep 17 00:00:00 2001
+From: Rafael Beims <rafael.beims@toradex.com>
+Date: Sat, 28 Dec 2024 07:25:10 -0300
+Subject: [PATCH] Adapt Makefile for Yocto build
+
+---
+ Makefile | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index b6079d34fc62..7bc63a730a86 100755
+--- a/Makefile
++++ b/Makefile
+@@ -121,7 +121,7 @@ ccflags-y += -DLINUX
+ 
+ 
+ KERNELVERSION_X86 := 	$(shell uname -r)
+-KERNELDIR ?= /lib/modules/$(KERNELVERSION_X86)/build
++KERNELDIR ?= $(KERNEL_SRC)
+ LD += -S
+ 
+ 
+@@ -593,4 +593,6 @@ endif
+ 	$(MAKE) -C mapp/mlanevent $@
+ endif
+ 
++modules_install:
++	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules_install
+ # End of file
+-- 
+2.39.5
+

@@ -1,6 +1,6 @@
 SUMMARY = "Toradex WiFI configuration."
 DESCRIPTION = "Allow for blacklisting of \
-either the mwifiex or NXP proprietary driver \
+either the mwifiex or NXP downstream driver \
 based on the OVERRIDES settings."
 
 inherit systemd
@@ -13,7 +13,7 @@ SRC_URI = " \
 "
 
 WIFI_CONFIG_FILE_SUFFIX="mwifiex"
-WIFI_CONFIG_FILE_SUFFIX:default-nxp-proprietary-driver="mlan"
+WIFI_CONFIG_FILE_SUFFIX:default-nxp-downstream-driver="mlan"
 
 do_install () {
 	install -d ${D}${sysconfdir}/modprobe.d/

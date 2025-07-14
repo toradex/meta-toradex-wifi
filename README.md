@@ -1,9 +1,9 @@
-This layer adds support for the NXP proprietary wifi drivers that can be enabled instead of the mainline mwifiex drivers. 
+This layer adds support for the NXP downstream Wi-Fi drivers that can be enabled instead of the mainline mwifiex drivers.
 It adds a blacklisting mechanism for the modules making it simple to choose what module to 
 use based on the modprobe configuration files.
 
-This layer also includes support for enabling the manufacturing mode for the NXP wifi drivers, that can be used
-for lab testing and it depends on proprietary files that come from NXP.
+This layer also includes support for enabling the manufacturing mode for the NXP Wi-Fi drivers, that can be used
+for lab testing and it depends on downstream files that come from NXP.
 
 Toradex makes this files available to customers under NDA, please contact your TSE or FAE for information on how to get access
 to the necessary files.
@@ -11,11 +11,12 @@ to the necessary files.
 Please see the corresponding sections below for details.
 
 Supported SOMS:
-- colibri-imx6ull: interface-diversity-sd-sd
-- colibri-imx8x:   interface-diversity-pcie-usb
-- verdin-imx8mm:   interface-diversity-sd-sd
-- verdin-imx8mp:   interface-diversity-sd-uart
-- apalis-imx8:     interface-diversity-pcie-usb
+- apalis-imx8:     pcie-usb
+- colibri-imx6ull: sd-sd
+- colibri-imx8x:   pcie-usb
+- verdin-imx8mm:   sd-sd
+- verdin-imx8mp:   sd-uart
+- verdin-am62:     sd-uart
 
 # How to install
 
@@ -38,26 +39,19 @@ EOF
 $ repo sync meta-toradex-wifi
 ```
 
-## Decompress the archive with the proprietary drivers downloaded from Toradex:
-
-```
-# source your yocto environment file
-$ . export
-$ cd $BBPATH
-$ tar xf proprietary_drivers_nxp_wifi.tar
-```
-
-After this, you should have a `wifi-archive` directory on the topdir of your yocto build.
+Copy the downloaded package from Toradex into your yocto downloads directory (`$DL_DIR` in `local.conf`).
 
 ## Enable the layer in your build:
 
 ```
+# source your yocto environment file
+$ . export
 $ cd $BBPATH/layers/meta-toradex-wifi
-$ ./install_layer.sh
+$ ./install_layer.sh <nxp_driver_package_path_and_name>
 ```
 
 The `install_layer.sh` script will setup all the necessary variables to enable the layer and to build and enable the
-proprietary drivers by default. Consult this script if you want to know the details of this operation.
+downstream drivers by default. Consult this script if you want to know the details of this operation.
 
 ## Configure
 There are a few configuration options available with this layer. These options are specified in your local.conf or auto.conf file using the MACHINEOVERRIDES variable.
@@ -65,7 +59,7 @@ There are a few configuration options available with this layer. These options a
 To set the default driver to be used at runtime to the mlan driver, add the following to your config file:
 
 ```
-MACHINEOVERRIDES =. "default-nxp-proprietary-driver:"
+MACHINEOVERRIDES =. "default-nxp-downstream-driver:"
 ```
 
 To enable manufacturing mode, use the above setting to default to the mlan driver and add the following to your config file:
@@ -100,20 +94,20 @@ To switch between drivers, simply comment out one set of entries, and uncomment 
 
 ## Manufacturing Mode
 
-If your build has been configured for manufacturing mode, you will have a binary executable named labtool in the /home/root directory.
+If your build has been configured for manufacturing mode, you will have a binary executable named labtool in the /root directory.
 
 # Dependencies
 
   URI: git://git.toradex.com/meta-toradex-bsp-common
-  branch: kirkstone-6.x.y
+  branch: scarthgap-7.x.y
   revision: HEAD
 
   URI: git://git.openembedded.org/bitbake
-  branch: kirkstone
+  branch: scarthgap
   revision: HEAD
 
   URI: git://git.openembedded.org/openembedded-core
   layers: meta
-  branch: kirkstone
+  branch: scarthgap
   revision: HEAD
 

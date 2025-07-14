@@ -4,60 +4,30 @@ LICENSE = "CLOSED"
 inherit module
 
 DEPENDS="kernel-module-wifimrvl"
-RPROVIDES:${PN}:append:interface-diversity-sd-sd = " kernel-module-btxxx "
-RPROVIDES:${PN}:append:interface-diversity-pcie-usb = " kernel-module-btxxx "
+RPROVIDES:${PN}:append = " kernel-module-btxxx "
 
-KERNEL_MODULE_PROBECONF:append:interface-diversity-sd-sd = " btxxx "
-module_conf_btxxx:interface-diversity-sd-sd:mfg-mode = "options btxxx fw_name=nxp/sdio8997_sdio_combo.bin"
+KERNEL_MODULE_PROBECONF:append = " btxxx "
 
-KERNEL_MODULE_PROBECONF:append:interface-diversity-pcie-usb = " btxxx "
-module_conf_btxxx:interface-diversity-pcie-usb:mfg-mode = "options btxxx fw_name=nxp/pcie8997_usb_combo.bin"
+SRC_URI = "\
+    ${NXP_DOWNSTREAM_DRIVER_PKG_FILENAME} \
+"
+SRC_URI[sha256sum] = "${NXP_DOWNSTREAM_DRIVER_PKG_SHA1}"
 
-SRC_URI = " \
-    file://0001-makefile.patch \
+SRC_URI:append:pcie-usb = "\
+    file://pcie-usb/0001-Adapt-Makefile-for-Yocto-build.patch \
+    file://pcie-usb/0001-Changes-to-support-kernel-6.6.0.patch \
 "
 
-SRC_URI:interface-diversity-pcie-usb = " \
-    file://0001-Change-Makefile-to-be-compatible-with-yocto-build.patch \
+SRC_URI:append:sd-sd = "\
+    file://sd-sd/0001-Adapt-Makefile-for-Yocto-build.patch \
+    file://sd-sd/0001-Changes-to-support-kernel-6.6.0.patch \
+    file://sd-sd/Remove-fw-action-hotplug.patch \
 "
 
-SRC_URI:interface-diversity-sd-sd = "\
-    file://0001-makefile.patch \
-    file://0001-Patch-for-kernel-5.15.patch\
-"
-
-S = "${WORKDIR}/mbt_src"
+S:pcie-usb = "${WORKDIR}/src/pcie-usb/mbt_src"
+S:sd-sd = "${WORKDIR}/src/sd-sd/mbt_src"
 
 RDEPENDS_${PN} += "toradex-wifi-config"
 
-COMPATIBLE_MACHINE = "(colibri-imx6ull|colibri-imx8x|verdin-imx8mm|verdin-imx8mp|apalis-imx8)"
-
-addtask nxp_driver_unpack before do_patch after do_unpack
-do_nxp_driver_unpack() {
-    :
-}
-
-SRC_URI:append:interface-diversity-sd-sd = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_PROPRIETARY_DRIVER_FILENAME};name=sd-sd-driver;subdir=archive.sd-sd "
-SRC_URI[sd-sd-driver.sha256sum] = "${NXP_PROPRIETARY_DRIVER_SHA256}"
-
-do_nxp_driver_unpack:interface-diversity-sd-sd() {
-    DRVNAME=$(basename ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/zip/tar/')
-    DIRNAME=$(echo ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/\.zip//')
-    tar -C ${WORKDIR}/archive.sd-sd/ -xf ${WORKDIR}/archive.sd-sd/$DIRNAME/$DRVNAME
-    for i in `ls ${WORKDIR}/archive.sd-sd/*-src.tgz`; do
-        tar --strip-components=1 -C ${WORKDIR} \
-            -xf $i
-    done
-}
-
-
-SRC_URI:append:interface-diversity-pcie-usb = " ${NXP_PROPRIETARY_DRIVER_LOCATION}/${NXP_PROPRIETARY_DRIVER_FILENAME};name=pcie-usb-driver;subdir=archive.pcie-usb "
-SRC_URI[pcie-usb-driver.sha256sum] = "${NXP_PROPRIETARY_DRIVER_SHA256}"
-do_nxp_driver_unpack:interface-diversity-pcie-usb() {
-    DIRNAME=$(echo ${NXP_PROPRIETARY_DRIVER_FILENAME} | sed 's/\.zip//'| sed 's/NXP_L-//')
-    for i in `ls ${WORKDIR}/archive.pcie-usb/$DIRNAME/*-src.tgz`; do
-        tar --strip-components=1 -C ${WORKDIR} \
-            -xf $i
-    done
-}
+COMPATIBLE_MACHINE = "(colibri-imx6ull|colibri-imx8x|verdin-imx8mm|apalis-imx8)"
 

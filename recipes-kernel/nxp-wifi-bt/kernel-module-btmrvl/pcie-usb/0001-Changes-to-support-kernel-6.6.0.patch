@@ -1,0 +1,90 @@
+From 1fd0b2b21c6f93d87e57ee7abc019bfb3745e35f Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Tue, 8 Jul 2025 16:49:37 +0000
+Subject: [PATCH] Changes to support kernel 6.6.0
+
+---
+ bt/bt_main.c  |  6 +++++-
+ bt/mbt_char.c | 20 ++++++++++++++++----
+ 2 files changed, 21 insertions(+), 5 deletions(-)
+
+diff --git a/bt/bt_main.c b/bt/bt_main.c
+index e7b226f..09b05d4 100755
+--- a/bt/bt_main.c
++++ b/bt/bt_main.c
+@@ -2708,7 +2708,7 @@ sbi_register_conf_dpc(bt_private *priv)
+ 		 mbt_driver_version, fw_version);
+ 
+ 	if (hdev) {
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 34)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 34) && LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+ 		hdev->dev_type = priv->bt_dev.devType;
+ #endif
+ 		ret = hci_register_dev(hdev);
+@@ -2940,7 +2940,11 @@ bt_init_module(void)
+ 	bt_root_proc_init();
+ 
+ 	/** create char device class */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
++	chardev_class = class_create(MODULE_NAME);
++#else
+ 	chardev_class = class_create(THIS_MODULE, MODULE_NAME);
++#endif
+ 	if (IS_ERR(chardev_class)) {
+ 		PRINTM(ERROR, "Unable to allocate class\n");
+ 		ret = PTR_ERR(chardev_class);
+diff --git a/bt/mbt_char.c b/bt/mbt_char.c
+index fceddd8..8378cd6 100755
+--- a/bt/mbt_char.c
++++ b/bt/mbt_char.c
+@@ -109,7 +109,10 @@ mbtchar_chmod(char *name, mode_t mode)
+ 	newattrs.ia_mode = (mode & S_IALLUGO) | (inode->i_mode & ~S_IALLUGO);
+ 	newattrs.ia_valid = ATTR_MODE | ATTR_CTIME;
+ 	if (inode->i_op->setattr)
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
++		ret = inode->i_op->setattr(&nop_mnt_idmap, path.dentry,
++					   &newattrs);
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+ 		ret = inode->i_op->setattr(inode->i_sb->s_user_ns, path.dentry,
+ 					   &newattrs);
+ #else
+@@ -117,7 +120,10 @@ mbtchar_chmod(char *name, mode_t mode)
+ #endif
+ 	else
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
++		ret = simple_setattr(&nop_mnt_idmap, path.dentry,
++				     &newattrs);
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+ 		ret = simple_setattr(inode->i_sb->s_user_ns, path.dentry,
+ 				     &newattrs);
+ #else
+@@ -201,7 +207,10 @@ mbtchar_chown(char *name, uid_t user, gid_t group)
+ 		newattrs.ia_valid |=
+ 			ATTR_KILL_SUID | ATTR_KILL_SGID | ATTR_KILL_PRIV;
+ 	if (inode->i_op->setattr)
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
++		ret = inode->i_op->setattr(&nop_mnt_idmap, path.dentry,
++					   &newattrs);
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+ 		ret = inode->i_op->setattr(inode->i_sb->s_user_ns, path.dentry,
+ 					   &newattrs);
+ #else
+@@ -209,7 +218,10 @@ mbtchar_chown(char *name, uid_t user, gid_t group)
+ #endif
+ 	else
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
++		ret = inode->i_op->setattr(&nop_mnt_idmap, path.dentry,
++					   &newattrs);
++#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+ 		ret = simple_setattr(inode->i_sb->s_user_ns, path.dentry,
+ 				     &newattrs);
+ #else
+-- 
+2.44.3
+
