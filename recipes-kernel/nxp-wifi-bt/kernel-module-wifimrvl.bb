@@ -45,6 +45,7 @@ SRC_URI:interface-diversity-sd-uart = "\
     file://cal_data.conf \
     file://0001-Replace-KERNELDIR-for-KERNEL_SRC.patch\
     file://0002-add-install-target.patch\
+    file://0001-Fix-sa_data-structure-fields.patch\
 "
 
 S = "${WORKDIR}/wlan_src"

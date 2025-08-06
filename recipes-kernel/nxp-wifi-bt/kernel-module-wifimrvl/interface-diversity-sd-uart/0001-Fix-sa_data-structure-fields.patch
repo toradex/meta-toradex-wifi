@@ -1,0 +1,93 @@
+From e239835875200e511091881cb0ae9a3fbe1e42b7 Mon Sep 17 00:00:00 2001
+From: Rafael Beims <rafael.beims@toradex.com>
+Date: Wed, 6 Aug 2025 10:43:07 -0300
+Subject: [PATCH] Fix sa_data structure fields
+
+---
+ mlinux/moal_eth_ioctl.c |  4 ++++
+ mlinux/moal_shim.c      |  4 ++++
+ mlinux/moal_uap_wext.c  |  4 ++++
+ mlinux/moal_wext.c      | 11 ++++++++++-
+ 4 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/mlinux/moal_eth_ioctl.c b/mlinux/moal_eth_ioctl.c
+index cfe7556..9639a75 100755
+--- a/mlinux/moal_eth_ioctl.c
++++ b/mlinux/moal_eth_ioctl.c
+@@ -5973,7 +5973,11 @@ static int woal_priv_get_ap(moal_private *priv, t_u8 *respbuf, t_u32 respbuflen)
+ 	if (bss_info.media_connected == MTRUE) {
+ 		moal_memcpy_ext(priv->phandle, mwr->u.ap_addr.sa_data,
+ 				&bss_info.bssid, MLAN_MAC_ADDR_LENGTH,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 183)
++				sizeof(mwr->u.ap_addr.sa_data_min));
++#else
+ 				sizeof(mwr->u.ap_addr.sa_data));
++#endif
+ 	} else {
+ 		memset(mwr->u.ap_addr.sa_data, 0, MLAN_MAC_ADDR_LENGTH);
+ 	}
+diff --git a/mlinux/moal_shim.c b/mlinux/moal_shim.c
+index 32138c6..e8fd1c7 100755
+--- a/mlinux/moal_shim.c
++++ b/mlinux/moal_shim.c
+@@ -2433,7 +2433,11 @@ mlan_status moal_recv_event(t_void *pmoal, pmlan_event pmevent)
+ 			memset(wrqu.ap_addr.sa_data, 0x00, ETH_ALEN);
+ 			moal_memcpy_ext(priv->phandle, wrqu.ap_addr.sa_data,
+ 					pmevent->event_buf, ETH_ALEN,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 183)
++					sizeof(wrqu.ap_addr.sa_data_min));
++#else
+ 					sizeof(wrqu.ap_addr.sa_data));
++#endif
+ 			wrqu.ap_addr.sa_family = ARPHRD_ETHER;
+ 			wireless_send_event(priv->netdev, SIOCGIWAP, &wrqu,
+ 					    NULL);
+diff --git a/mlinux/moal_uap_wext.c b/mlinux/moal_uap_wext.c
+index b1e6c2b..90e8bbc 100755
+--- a/mlinux/moal_uap_wext.c
++++ b/mlinux/moal_uap_wext.c
+@@ -232,7 +232,11 @@ static int woal_get_wap(struct net_device *dev, struct iw_request_info *info,
+ 	if (priv->bss_started)
+ 		moal_memcpy_ext(priv->phandle, awrq->sa_data,
+ 				priv->current_addr, MLAN_MAC_ADDR_LENGTH,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 183) 
++	                        sizeof(awrq->sa_data_min));
++#else
+ 				sizeof(awrq->sa_data));
++#endif
+ 	else
+ 		memset(awrq->sa_data, 0, MLAN_MAC_ADDR_LENGTH);
+ 	awrq->sa_family = ARPHRD_ETHER;
+diff --git a/mlinux/moal_wext.c b/mlinux/moal_wext.c
+index d58d1c2..4cbfd16 100755
+--- a/mlinux/moal_wext.c
++++ b/mlinux/moal_wext.c
+@@ -620,7 +620,12 @@ static int woal_get_wap(struct net_device *dev, struct iw_request_info *info,
+ 
+ 	if (bss_info.media_connected == MTRUE)
+ 		moal_memcpy_ext(priv->phandle, awrq->sa_data, &bss_info.bssid,
+-				MLAN_MAC_ADDR_LENGTH, sizeof(awrq->sa_data));
++				MLAN_MAC_ADDR_LENGTH, 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 183)
++				sizeof(awrq->sa_data_min));
++#else
++				sizeof(awrq->sa_data));
++#endif
+ 	else
+ 		memset(awrq->sa_data, 0, MLAN_MAC_ADDR_LENGTH);
+ 	awrq->sa_family = ARPHRD_ETHER;
+@@ -3040,7 +3045,11 @@ static int woal_get_scan(struct net_device *dev, struct iw_request_info *info,
+ 		iwe.u.ap_addr.sa_family = ARPHRD_ETHER;
+ 		moal_memcpy_ext(priv->phandle, iwe.u.ap_addr.sa_data,
+ 				&scan_table[i].mac_address, ETH_ALEN,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 183)
++				sizeof(iwe.u.ap_addr.sa_data_min));
++#else
+ 				sizeof(iwe.u.ap_addr.sa_data));
++#endif
+ 
+ 		iwe.len = IW_EV_ADDR_LEN;
+ 		current_ev = IWE_STREAM_ADD_EVENT(info, current_ev, end_buf,
+-- 
+2.39.5
+
