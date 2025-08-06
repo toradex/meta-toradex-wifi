@@ -27,6 +27,7 @@ module_conf_pciexxx:interface-diversity-pcie-usb:mfg-mode = "options pciexxx cal
 SRC_URI:interface-diversity-pcie-usb = "\
     file://cal_data.conf \
     file://0001-Change-Makefile-to-be-compatible-with-yocto-build.patch \
+    file://0001-Fix-sa_data-structure-fields.patch\
 "
 
 SRC_URI:interface-diversity-pcie-usb:mfg-mode = "\
@@ -39,6 +40,7 @@ SRC_URI:interface-diversity-sd-sd = "\
     file://0001-makefile.patch \
     file://0001-Remove-REGULATORY_IGNORE_STALE_KICKOFF-flag.patch\
     file://0001-Update-minimum-version-for-sa_data_min-patch.patch\
+    file://0001-Fix-sa_data-structure-fields.patch\
 "
 
 SRC_URI:interface-diversity-sd-uart = "\
