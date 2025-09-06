@@ -1,33 +1,35 @@
-From d0dae0ccb6058f840980416fb1256c9e0b17dbf9 Mon Sep 17 00:00:00 2001
-From: Your Name <you@example.com>
-Date: Mon, 30 Dec 2024 16:09:02 -0300
+From b94ebf8c0d8d4ca8289e90cee68fc5c4ba192b95 Mon Sep 17 00:00:00 2001
+From: Rafael Beims <rafael.beims@toradex.com>
+Date: Sat, 6 Sep 2025 07:46:46 -0300
 Subject: [PATCH] Adapt Makefile for Yocto build
 
 ---
- Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ Makefile | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
-index efd2321..d5ec517 100755
+index 707f280..06819f6 100755
 --- a/Makefile
 +++ b/Makefile
-@@ -8,6 +8,8 @@ LD ?=		$(CROSS_COMPILE)ld
- BACKUP=		/root/backup
- YMD=		`date +%Y%m%d%H%M`
+@@ -63,7 +63,7 @@ endif
  
+ 
+ KERNELVERSION_X86 := 	$(shell uname -r)
+-KERNELDIR?=/lib/modules/$(KERNELVERSION_X86)/build
 +KERNELDIR=$(KERNEL_SRC)
-+
- #############################################################################
- # Configuration Options
- #############################################################################
-@@ -184,4 +186,7 @@ distclean:
- 	-rm -rf .tmp_versions
- #	$(MAKE) -C app/fm_app $@
- #	$(MAKE) -C app/btapp $@
-+
-+modules_install:
+ 
+ EXTRA_CFLAGS += -I$(KERNELDIR)/include
+ 
+@@ -160,6 +160,9 @@ clean:
+ 
+ install: default
+ 
++modules_install:                                                                                                                  
 +	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules_install
- # End of file;
++
+ distclean:
+ 	-find . -name "*.o" -exec rm {} \;
+ 	-find . -name "*.orig" -exec rm {} \;
 -- 
 2.25.1
 

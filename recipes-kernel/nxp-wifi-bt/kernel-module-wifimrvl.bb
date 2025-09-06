@@ -28,7 +28,7 @@ SRC_URI:append = "\
 
 SRC_URI:append:sd-sd = "\
    file://sd-sd/0001-Adapt-Makefile-for-Yocto-build.patch \
-   file://sd-sd/Fix-sa_data-structure-fields.patch \
+   file://sd-sd/0001-Changes-to-support-kernel-6.6.0.patch \
 "
 
 SRC_URI:append:sd-uart = "\

@@ -13,6 +13,10 @@ S:pcie-usb = "${WORKDIR}/src/pcie-usb/fw"
 S:sd-sd = "${WORKDIR}/src/sd-sd/fw"
 S:sd-uart = "${WORKDIR}/src/sd-uart/fw"
 
+MFGMODE_FW_PATH:pcie-usb = "${WORKDIR}/src/pcie-usb/mfgmode/fw"
+MFGMODE_FW_PATH:sd-sd = "${WORKDIR}/src/sd-sd/mfgmode/fw"
+MFGMODE_FW_PATH:sd-uart = "${WORKDIR}/src/sd-uart/mfgmode/fw"
+
 # firmware binaries are generally machine specific
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
@@ -22,7 +26,7 @@ do_install() {
 }
 
 do_install:append:mfgmode-fw () {
-    install -m 0644 ${S}/../../mfgmode/fw/${FIRMWARE_BIN_MFGMODE} ${D}${base_libdir}/firmware/nxp
+    install -m 0644 ${MFGMODE_FW_PATH}/${FIRMWARE_BIN_MFGMODE} ${D}${base_libdir}/firmware/nxp
 }
 
 do_install:sd-uart() {

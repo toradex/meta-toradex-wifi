@@ -1,0 +1,153 @@
+From 5d4c5460a1246af7fed62b7f45358c132e6fbcda Mon Sep 17 00:00:00 2001
+From: Rafael Beims <rafael.beims@toradex.com>
+Date: Fri, 5 Sep 2025 19:03:01 +0000
+Subject: [PATCH] Changes to support kernel 6.6.0
+
+The changes contained here may not be 100% correct for kernel 6.6.0,
+just using this version as a placeholder for the #ifdef's.
+---
+ mlinux/moal_main.c         | 16 +++++++++-----
+ mlinux/moal_sta_cfg80211.c | 45 +++++++++++++++++++++++++++++++++-----
+ 2 files changed, 51 insertions(+), 10 deletions(-)
+
+diff --git a/mlinux/moal_main.c b/mlinux/moal_main.c
+index c51e9d5..c6afef0 100755
+--- a/mlinux/moal_main.c
++++ b/mlinux/moal_main.c
+@@ -52,6 +52,10 @@ Change log:
+ #include <linux/tcp.h>
+ #include <net/tcp.h>
+ #include <net/dsfield.h>
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
++#include <net/netdev_rx_queue.h>
++#endif
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)
+ #include <linux/mpls.h>
+ #endif
+@@ -2601,8 +2605,8 @@ woal_set_rps_map(struct netdev_rx_queue *queue, const char *buf, size_t len)
+ 	int err, cpu, i;
+ 	static DEFINE_MUTEX(local_rps_map_mutex);
+ 
+-	if (!queue || !queue->dev) {
+-		PRINTM(MERROR, "%s: queue=%px or queue->dev is NULL\n",
++	if (!queue) {
++		PRINTM(MERROR, "%s: queue=%px is NULL\n",
+ 		       __func__, queue);
+ 		return -EINVAL;
+ 	}
+@@ -2665,8 +2669,8 @@ woal_set_rps_map(struct netdev_rx_queue *queue, const char *buf, size_t len)
+ 	if (old_map)
+ 		kfree_rcu(old_map, rcu);
+ 
+-	PRINTM(MMSG, "%s on %s: buf=%s(%u) (%d i=%d)\n", __func__,
+-	       queue->dev->name, buf, (t_u32)len, nr_cpumask_bits, i);
++	PRINTM(MMSG, "%s: buf=%s(%u) (%d i=%d)\n", __func__,
++	       buf, (t_u32)len, nr_cpumask_bits, i);
+ 	free_cpumask_var(mask);
+ 	return len;
+ }
+@@ -8260,8 +8264,10 @@ woal_create_dump_dir(moal_handle *phandle, char *dir_buf, int buf_size)
+ 	}
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0)
+ 	ret = vfs_mkdir(path.dentry->d_inode, dentry, 0777);
+-#else
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+ 	ret = vfs_mkdir(&init_user_ns, path.dentry->d_inode, dentry, 0777);
++#else
++	ret = vfs_mkdir(&nop_mnt_idmap, path.dentry->d_inode, dentry, 0777);
+ #endif
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 6, 0)
+ 	mutex_unlock(&path.dentry->d_inode->i_mutex);
+diff --git a/mlinux/moal_sta_cfg80211.c b/mlinux/moal_sta_cfg80211.c
+index 71daa62..d21dc7d 100755
+--- a/mlinux/moal_sta_cfg80211.c
++++ b/mlinux/moal_sta_cfg80211.c
+@@ -209,6 +209,9 @@ int woal_cfg80211_tdls_oper(struct wiphy *wiphy, struct net_device *dev,
+ int woal_cfg80211_tdls_mgmt(struct wiphy *wiphy, struct net_device *dev,
+ #if CFG80211_VERSION_CODE >= KERNEL_VERSION(3, 16, 0)
+ 			    const u8 *peer,
++#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
++			    int link_id,
++#endif
+ #else
+ 			    u8 *peer,
+ #endif
+@@ -7291,16 +7294,20 @@ woal_check_auto_tdls(struct wiphy *wiphy, struct net_device *dev)
+ 		spin_unlock_irqrestore(&priv->tdls_lock, flags);
+ 	}
+ 	if (tdls_discovery)
+-#if CFG80211_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)
+-#if CFG80211_VERSION_CODE >= KERNEL_VERSION(3, 17, 0)
++
++
++#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
++		woal_cfg80211_tdls_mgmt(wiphy, dev, bcast_addr, 0,
++					TDLS_DISCOVERY_REQUEST, 1, 0, 0, 0,
++					NULL, 0);
++#elif CFG80211_VERSION_CODE >= KERNEL_VERSION(3, 17, 0) 
+ 		woal_cfg80211_tdls_mgmt(wiphy, dev, bcast_addr,
+ 					TDLS_DISCOVERY_REQUEST, 1, 0, 0, 0,
+ 					NULL, 0);
+-#else
++#elif CFG80211_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)
+ 		woal_cfg80211_tdls_mgmt(wiphy, dev, bcast_addr,
+ 					TDLS_DISCOVERY_REQUEST, 1, 0, 0, NULL,
+ 					0);
+-#endif
+ #else
+ 		woal_cfg80211_tdls_mgmt(wiphy, dev, bcast_addr,
+ 					TDLS_DISCOVERY_REQUEST, 1, 0, NULL, 0);
+@@ -7999,7 +8006,33 @@ fail:
+ 	return ret;
+ }
+ 
+-#if CFG80211_VERSION_CODE >= KERNEL_VERSION(3, 17, 0)
++#if CFG80211_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
++/**
++ * @brief Tx TDLS packet
++ *
++ * @param wiphy                 A pointer to wiphy structure
++ * @param dev                   A pointer to net_device structure
++ * @param peer                  A pointer to peer mac
++ * @param link_id               Link ID for multi link operation 
++ * @param action_code           tdls action code
++ * @param dialog_token          dialog_token
++ * @param status_code           status_code
++ * @param peer_capability       peer capability
++ * @param initiator             initiator
++ * @param extra_ies              A pointer to extra ie buffer
++ * @param extra_ies_len          etra ie len
++ *
++ * @return                      0 -- success, otherwise fail
++ */
++int
++woal_cfg80211_tdls_mgmt(struct wiphy *wiphy, struct net_device *dev,
++			const t_u8 *peer, int link_id, u8 action_code, t_u8 dialog_token,
++			t_u16 status_code, t_u32 peer_capability,
++			bool initiator, const t_u8 *extra_ies,
++			size_t extra_ies_len)
++
++
++#elif CFG80211_VERSION_CODE >= KERNEL_VERSION(3, 17, 0)
+ /**
+  * @brief Tx TDLS packet
+  *
+@@ -10005,12 +10038,14 @@ woal_register_cfg80211(moal_private *priv)
+ 	}
+ #endif
+ #if CFG80211_VERSION_CODE >= KERNEL_VERSION(3, 19, 0)
++#if CFG80211_VERSION_CODE < KERNEL_VERSION(6, 1, 0)
+ 	/*REGULATORY_IGNORE_STALE_KICKOFF: the regulatory core will _not_ make sure
+ 	 * all interfaces on this wiphy reside on allowed channels. If this flag
+ 	 * is not set, upon a regdomain change, the interfaces are given a grace
+ 	 * period (currently 60 seconds) to disconnect or move to an allowed
+ 	 * channel.*/
+ 	wiphy->regulatory_flags |= REGULATORY_IGNORE_STALE_KICKOFF;
++#endif
+ #endif
+ 
+ 	memset(&priv->phandle->country_code, 0,
+-- 
+2.44.4
+

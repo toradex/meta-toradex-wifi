@@ -3,16 +3,27 @@ LICENSE = "CLOSED"
 
 SRC_URI = "\
     ${NXP_DOWNSTREAM_DRIVER_PKG_FILENAME} \
-    file://0001-Adapt-makefile-for-yocto-build.patch \
-    file://0002-Bypass-problems-with-redefinition-of-min-and-max-std.patch \
-    file://0003-Remove-strip-from-the-build.patch \
 "
 SRC_URI[sha256sum] = "${NXP_DOWNSTREAM_DRIVER_PKG_SHA1}"
 
-S = "${WORKDIR}/src/mfgmode/labtool"
+
+S:sd-sd = "${WORKDIR}/src/sd-sd/mfgmode/labtool"
+S:sd-uart = "${WORKDIR}/src/sd-uart/mfgmode/labtool"
+S:pcie-usb = "${WORKDIR}/src/pcie-usb/mfgmode/labtool"
+
+SRC_URI:append:sd-sd:mfg-mode = " \
+    file://sd-sd/0001-Adapt-Makefile-for-yocto-build.patch \
+"
+
+SRC_URI:append:sd-uart:mfg-mode = " \
+    file://sd-uart/0001-Adapt-Makefile-for-yocto-build.patch \
+"
 
 SRC_URI:append:pcie-usb:mfg-mode = " \
     file://pcie-usb/SetUp.ini \
+    file://pcie-usb/0001-Adapt-makefile-for-yocto-build.patch \
+    file://pcie-usb/0002-Bypass-problems-with-redefinition-of-min-and-max-std.patch \
+    file://pcie-usb/0003-Remove-strip-from-the-build.patch \
 "
 
 TARGET_CC_ARCH += "${LDFLAGS}"
