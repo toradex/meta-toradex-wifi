@@ -6,14 +6,6 @@ inherit module
 DEPENDS="kernel-module-wifimrvl"
 RPROVIDES:${PN}:append = " kernel-module-btxxx "
 
-module_conf_btxxx = "options btxxx cal_data_cfg=nxp/cal_data.conf cfg80211_wext=0xc fw_name=nxp/${FIRMWARE_BIN}"
-
-module_conf_btxxx:mfg-mode:mfgmode-fw = "options btxxx cal_data_cfg=none cfg80211_wext=0xf mfg_mode=1 fw_name=nxp/${FIRMWARE_BIN_MFGMODE}"
-
-module_conf_btxxx:mfg-mode = "options btxxx cal_data_cfg=none cfg80211_wext=0xf fw_name=nxp/${FIRMWARE_BIN_MFGMODE}"
-
-KERNEL_MODULE_PROBECONF:append = " btxxx "
-
 SRC_URI = "\
     ${NXP_DOWNSTREAM_DRIVER_PKG_FILENAME} \
 "
